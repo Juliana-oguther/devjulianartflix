@@ -9,7 +9,7 @@ function CadastroCategoria() {
     nome: '',
     descricao: '',
     cor: '',
-  };
+  }
   const [categorias, setCategorias] = useState([]);
   const [values, setValues] = useState(valoresIniciais);
 
@@ -18,26 +18,29 @@ function CadastroCategoria() {
     setValues({
       ...values,
       [chave]: valor, // nome: 'valor'
-    });
+    })
   }
 
   function handleChange(infosDoEvento) {
     setValue(
       infosDoEvento.target.getAttribute('name'),
-      infosDoEvento.target.value,
+      infosDoEvento.target.value
     );
   }
 
   useEffect(() => {
-    console.log('Olá Brasil!');
-    const URL_TOP = 'http://localhost:8080/categorias';
-    fetch(URL_TOP)
-     .then(async (respostaDoServidor) => {
-       const resposta = await respostaDoServidor.json();
-       setCategorias([
-         ...resposta,
-       ]);
-     });
+    if(window.location.href.includes('localhost')) {
+    const URL = 'http://localhost:8080/categorias';
+    fetch(URL)
+     .then(async (respostaDoServer) =>{
+       if(respostaDoServer.ok) {
+        const resposta = await respostaDoServer.json();
+       setCategorias(resposta);
+       return;
+       }
+       throw new Error('Não foi possível pegar os dados');
+     })
+    }
 
    // setTimeout(() => {
    //   setCategorias([
@@ -60,24 +63,21 @@ function CadastroCategoria() {
 
   return (
     <PageDefaulf>
-      <h1>
-        Cadastro de Categoria:
-        {values.nome}
-      </h1>
+      <h1>Cadastro de Categoria: {values.nome}</h1>
 
       <form onSubmit={function handleSubmit(infosDoEvento) {
         infosDoEvento.preventDefault();
         setCategorias([
           ...categorias,
-          values,
+          values
         ]);
 
         setValues(valoresIniciais);
-      }}
-      >
+      }}>
 
         <FormField
           label="Nome da Categoria"
+          type="text"
           name="nome"
           value={values.nome}
           onChange={handleChange}
@@ -85,7 +85,7 @@ function CadastroCategoria() {
 
         <FormField
           label="Descrição"
-          type="textarea"
+          type="????"
           name="descricao"
           value={values.descricao}
           onChange={handleChange}
@@ -103,25 +103,21 @@ function CadastroCategoria() {
         </Button>
       </form>
 
-      {categorias.length === 0 && (
-      <div>
-        Loading...
-      </div>
-      )}
-
       <ul>
-        {categorias.map((categoria) => (
-          <li key={`${categoria.nome}`}>
-            {categoria.nome}
+        {categorias.map((categoria, indice) => {
+          return (
+          <li key={`${categoria}${indice}`}>
+            {categoria.titulo}
           </li>
-        ))}
+          )
+        })}
       </ul>
 
       <Link to="/">
         Ir para Home
       </Link>
     </PageDefaulf>
-  );
+  )
 }
 
 export default CadastroCategoria;
